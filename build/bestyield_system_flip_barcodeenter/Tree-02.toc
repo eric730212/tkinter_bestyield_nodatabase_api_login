@@ -1,0 +1,10 @@
+('C:\\Users\\GOD\\PycharmProjects\\tkinter_bestyield_nodatabase_api_login\\build\\bestyield_system_flip_barcodeenter\\pyreadline-2.1-py3.7-win-amd64.egg',
+ None,
+ {'*.pyc', '*.pyd', '*.pyw', 'EGG-INFO', '*.cp37-win_amd64.pyd', '*.py'},
+ 'DATA',
+ [('pyreadline-2.1-py3.4.egg-info',
+   'C:\\Users\\GOD\\PycharmProjects\\tkinter_bestyield_nodatabase_api_login\\build\\bestyield_system_flip_barcodeenter\\pyreadline-2.1-py3.7-win-amd64.egg\\pyreadline-2.1-py3.4.egg-info',
+   'DATA'),
+  ('pyreadline\\configuration\\pyreadlineconfig.ini',
+   'C:\\Users\\GOD\\PycharmProjects\\tkinter_bestyield_nodatabase_api_login\\build\\bestyield_system_flip_barcodeenter\\pyreadline-2.1-py3.7-win-amd64.egg\\pyreadline\\configuration\\pyreadlineconfig.ini',
+   'DATA')])

@@ -1,7 +1,7 @@
 import serial
 
 while True:
-    ser = serial.Serial('COM11',9600,timeout=None)
+    ser = serial.Serial('COM4',9600,timeout=None)
     read_buffer = b''
 
     while True:

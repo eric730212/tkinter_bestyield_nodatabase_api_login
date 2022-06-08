@@ -22,7 +22,6 @@ W = "重量"
 b = 1
 p = 1
 path1 = os.path.dirname(os.path.realpath(__file__))
-print(path1)
 # path1 = "C:\\Users\\GOD\\Pictures\\"  # 指定資料夾存放位置
 token = ""
 
@@ -52,7 +51,8 @@ class StartPage(tk.Frame):
             name = nameE.get()
             password = addreddE.get()
             print(name, password)
-            my_data = {"system": "WebActJu",
+
+            my_data = {"system": "ActApi",
                        "Username": name,
                        "Password": password
                        }
@@ -108,7 +108,8 @@ class PageOne(tk.Frame):
             ret, frame = cap.read()
             if p != 0:
                 frame = cv2.flip(frame, 1)
-                flipimg = cv2.cv2.flip(frame, 1)
+                flipimg1 = cv2.cv2.flip(frame, -1)
+                flipimg = cv2.cv2.flip(flipimg1, 1)
                 cv2image = cv2.cvtColor(flipimg, cv2.COLOR_BGR2RGBA)
                 img = Image.fromarray(cv2image)
                 imgtk = ImageTk.PhotoImage(image=img)
@@ -121,9 +122,16 @@ class PageOne(tk.Frame):
             b = 0
             self.quit()
 
+        def tab():
+            win32api.keybd_event(9, 0, 0, 0)
+            win32api.keybd_event(9, 0, win32con.KEYEVENTF_KEYUP, 0)
+            #time.sleep(0.5)
+
+
         def bluetooth():
             global data1
             try:
+                """
                 ports = list(serial.tools.list_ports.comports())
                 for p in ports:
                     print(p)
@@ -131,14 +139,15 @@ class PageOne(tk.Frame):
                         # COM_PORT = p.description[34:39]
                         COM_PORT = (p.description.split("(")[-1]).split(")")[0]
                         print("com port:", COM_PORT)
-                # COM_PORT = 'COM7'
+                """
+                COM_PORT = 'COM4'
                 BAUD_RATES = 9600
                 ser = serial.Serial(COM_PORT, BAUD_RATES, timeout=0.5)
                 print("++++++++++")
                 while ser.readline() != b'':
                     data_raw = ser.readline()
                     data = data_raw.decode()
-                    data1 = data[6:16]
+                    data1 = data[6:14]
                     # print('接收到的資料：', data)
                     # print('丟到資料庫的:', data1)
                     weightLR.config(text=data1)
@@ -219,7 +228,7 @@ class PageOne(tk.Frame):
                     print("S/N: %s" % (cartE.get()))
 
                     my_data1 = {"snList": totalsnlist}
-                    y = requests.post('https://byteiotapi.bestyield.com/api/act09j/%s/%s' % (tr, T[1:8]),  # 上傳
+                    y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]),  # 上傳
                                       headers={'Authorization': 'Bearer ' + token},
                                       files=my_files, data=my_data1)
                     print(y.status_code)
@@ -247,12 +256,7 @@ class PageOne(tk.Frame):
                     tr = ""
                     cameraShow()
 
-        def tab():
-            x = 4
-            for i in range(x):
-                win32api.keybd_event(9, 0, 0, 0)
-                cv2.waitKey(100)
-                win32api.keybd_event(9, 0, win32con.KEYEVENTF_KEYUP, 0)
+
 
         def clear():
             cartE.delete(0, tk.END)
@@ -274,12 +278,17 @@ class PageOne(tk.Frame):
             global p
             global data1
             ret, frame = cap.read()
-            cv2.imwrite("%s\\ref\\test3.png"%path1, frame)
+            ret, frame = cap.read()
+            frame = cv2.flip(frame, 1)
+            flipimg1 = cv2.cv2.flip(frame, -1)
+            flipimg = cv2.cv2.flip(flipimg1, 1)
+
+            cv2.imwrite("%s\\ref\\test3.png" % path1, flipimg)
             img = tk.PhotoImage(file="%s\\ref\\test3.png"%path1)
 
             T = data1
             logo.config(image=img)
-            weightLL.config(text=T, fg="black")
+            weightLL.config(text=T, fg="black", font="Helvetic 20 bold")
             p = 0
 
         msg = "歡迎進入 Bestyield 出貨紀錄系統"
@@ -331,6 +340,19 @@ class PageOne(tk.Frame):
         sn10E = tk.Entry(self, font="Helvetic 20 bold", width=23, justify="center")
         weightLL = tk.Label(self, text=T, width=20, font="Helvetic 20 bold")
         cartE.grid(row=0, column=5)
+
+        cartE.bind("<Return>", (lambda event: tab()))
+        sn1E.bind("<Return>", (lambda event: tab()))
+        sn2E.bind("<Return>", (lambda event: tab()))
+        sn3E.bind("<Return>", (lambda event: tab()))
+        sn4E.bind("<Return>", (lambda event: tab()))
+        sn5E.bind("<Return>", (lambda event: tab()))
+        sn6E.bind("<Return>", (lambda event: tab()))
+        sn7E.bind("<Return>", (lambda event: tab()))
+        sn8E.bind("<Return>", (lambda event: tab()))
+        sn9E.bind("<Return>", (lambda event: tab()))
+        sn10E.bind("<Return>", (lambda event: tab()))
+
         sn1E.grid(row=1, column=5)
         sn2E.grid(row=2, column=5)
         sn3E.grid(row=3, column=5)

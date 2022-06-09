@@ -10,11 +10,25 @@ import win32con
 import serial.tools.list_ports
 import requests
 import json
+import sys
 
 import tkinter as tk
 import tkinter.messagebox as messagebox
 
 global cap
+global COM_PORT
+
+def resource_path(relative_path):
+
+    if hasattr(sys, '_MEIPASS'):
+
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath('.')
+    return os.path.join(base_path, relative_path)
+
+
+COM_PORT = ""
 cap = cv2.VideoCapture(0)
 tr = ""
 T = ""
@@ -30,7 +44,9 @@ class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title("Bestyield")
-        self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
+        # self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
+        self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(file=resource_path('ref\\bestyield.png')))
+        print("resource_path: ", resource_path('ref\\bestyield.png'))
         self.config(bg="LightSeaGreen")
         self._frame = None
         self.switch_frame(StartPage)
@@ -48,8 +64,11 @@ class StartPage(tk.Frame):
     def __init__(self, master):
         def log_in():
             global token
+            global COM_PORT
             name = nameE.get()
             password = addreddE.get()
+            COM_PORT = "COM" + comE.get()
+            print(COM_PORT)
             print(name, password)
 
             my_data = {"system": "ActApi",
@@ -60,7 +79,7 @@ class StartPage(tk.Frame):
             Head = {'Content-Type': 'application/json'}
             x = requests.post('https://byteiotapi.bestyield.com/signin', headers=Head, data=json.dumps(my_data))
             print(x.status_code)
-            if x.status_code == 200:
+            if x.status_code == 200 and COM_PORT != "":
                 loginlab.config(text="登入成功", fg="green")
                 token = x.text
                 master.switch_frame(PageOne)
@@ -72,7 +91,7 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, master)
 
         msg = "歡迎進入 Bestyield 出貨系統"
-        self.sseGif = tk.PhotoImage(file="%s\\ref\\bestyield.gif"%path1)
+        self.sseGif = tk.PhotoImage(file="%s\\ref\\bestyield.gif" % path1)
         logo = tk.Label(self, text=msg, image=self.sseGif, compound="bottom", font="Helvetic 10 bold")
         logo.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
 
@@ -80,19 +99,23 @@ class StartPage(tk.Frame):
         nameL.grid(row=1)
         addressL = tk.Label(self, text="Password")
         addressL.grid(row=2)
+        comL = tk.Label(self, text="COM")
+        comL.grid(row=3)
 
         nameE = tk.Entry(self)
         addreddE = tk.Entry(self, show="*")
+        comE = tk.Entry(self)
         nameE.grid(row=1, column=1)
         addreddE.grid(row=2, column=1, pady=10)
+        comE.grid(row=3, column=1)
 
         nameE.focus()
 
         loginbtn = tk.Button(self, text="登入", command=log_in)
-        loginbtn.grid(row=3, column=1)
+        loginbtn.grid(row=4, column=1)
 
         loginlab = tk.Label(self, text="未登入")
-        loginlab.grid(row=3, column=0)
+        loginlab.grid(row=4, column=0)
 
 
 class PageOne(tk.Frame):
@@ -125,11 +148,11 @@ class PageOne(tk.Frame):
         def tab():
             win32api.keybd_event(9, 0, 0, 0)
             win32api.keybd_event(9, 0, win32con.KEYEVENTF_KEYUP, 0)
-            #time.sleep(0.5)
-
+            # time.sleep(0.5)
 
         def bluetooth():
             global data1
+            global COM_PORT
             try:
                 """
                 ports = list(serial.tools.list_ports.comports())
@@ -140,28 +163,29 @@ class PageOne(tk.Frame):
                         COM_PORT = (p.description.split("(")[-1]).split(")")[0]
                         print("com port:", COM_PORT)
                 """
-                COM_PORT = 'COM4'
-                BAUD_RATES = 9600
-                ser = serial.Serial(COM_PORT, BAUD_RATES, timeout=0.5)
-                print("++++++++++")
-                while ser.readline() != b'':
-                    data_raw = ser.readline()
-                    data = data_raw.decode()
-                    data1 = data[6:14]
-                    # print('接收到的資料：', data)
-                    # print('丟到資料庫的:', data1)
-                    weightLR.config(text=data1)
+                while (COM_PORT != ""):
+                    # COM_PORT = 'COM4'
+                    BAUD_RATES = 9600
+                    ser = serial.Serial(COM_PORT, BAUD_RATES, timeout=0.5)
+                    print("++++++++++")
+                    while ser.readline() != b'':
+                        data_raw = ser.readline()
+                        data = data_raw.decode()
+                        data1 = data[6:14]
+                        # print('接收到的資料：', data)
+                        # print('丟到資料庫的:', data1)
+                        weightLR.config(text=data1)
 
-                weightLR.config(text="重量")
-                messagebox.showerror("錯誤", "錯誤!  沒有偵測到藍芽接收器")
-                ser.close()
-                cv2.waitKey(100)
-                bluetooth()
+                    weightLR.config(text="重量")
+                    messagebox.showerror("錯誤", "錯誤!  沒有偵測到藍芽接收器")
+                    ser.close()
+                    cv2.waitKey(1000)
+                    bluetooth()
             except:
                 weightLR.config(text="重量")
                 messagebox.showerror("錯誤", "錯誤!  沒有偵測到藍芽接收器")
-                #ser.close()
-                cv2.waitKey(100)
+                # ser.close()
+                cv2.waitKey(1000)
                 bluetooth()
 
         def printInfo():
@@ -194,14 +218,14 @@ class PageOne(tk.Frame):
                     messagebox.showerror("錯誤", "錯誤!  S/N: %s  重複" % duplicated)
                 else:
                     print(tr)
-                    #if os.path.isdir(path1 +"\\"+ time.strftime('%Y%m%d') + "\\" + tr):  # 如果沒有,新增今天的目錄
-                    if os.path.isdir("%s\\%s\\%s"%(path1,time.strftime('%Y%m%d'),tr)):
+                    # if os.path.isdir(path1 +"\\"+ time.strftime('%Y%m%d') + "\\" + tr):  # 如果沒有,新增今天的目錄
+                    if os.path.isdir("%s\\%s\\%s" % (path1, time.strftime('%Y%m%d'), tr)):
                         pass
                     else:
-                        os.makedirs("%s\\%s\\%s"%(path1,time.strftime('%Y%m%d'),tr))
+                        os.makedirs("%s\\%s\\%s" % (path1, time.strftime('%Y%m%d'), tr))
                     global path
-                    #path = path1 +"\\"+ time.strftime('%Y%m%d') + "\\"  # 定義成今天的資料夾
-                    path = "%s\\%s\\%s"%(path1,time.strftime('%Y%m%d'),tr)
+                    # path = path1 +"\\"+ time.strftime('%Y%m%d') + "\\"  # 定義成今天的資料夾
+                    path = "%s\\%s\\%s" % (path1, time.strftime('%Y%m%d'), tr)
                     global person_list
                     person_list = os.listdir(path)
                     person_list.sort()
@@ -214,16 +238,16 @@ class PageOne(tk.Frame):
                     person_cnt = person_num_latest
                     print('person_cnt = ', person_cnt)
                     if person_cnt < 10:
-                        #current_pic_dir = path + tr + "\\" + tr + "_0" + str(person_cnt)
+                        # current_pic_dir = path + tr + "\\" + tr + "_0" + str(person_cnt)
                         current_pic_dir = path + "\\" + tr + "_0" + str(person_cnt)
                     else:
                         current_pic_dir = path + "\\" + tr + "_" + str(person_cnt)
-                    img = cv2.imread("%s\\ref\\test3.png"%path1)
+                    img = cv2.imread("%s\\ref\\test3.png" % path1)
                     cv2.imwrite(current_pic_dir + ".png", img)  # 寫到今天/ s/n /的資料夾裡
 
                     my_files = {'file': open("%s.png" % current_pic_dir, 'rb')}
 
-                    img = tk.PhotoImage(file="%s\\ref\\test3.png"%path1)
+                    img = tk.PhotoImage(file="%s\\ref\\test3.png" % path1)
                     logo.config(image=img)
                     print("S/N: %s" % (cartE.get()))
 
@@ -256,8 +280,6 @@ class PageOne(tk.Frame):
                     tr = ""
                     cameraShow()
 
-
-
         def clear():
             cartE.delete(0, tk.END)
             sn1E.delete(0, tk.END)
@@ -284,7 +306,7 @@ class PageOne(tk.Frame):
             flipimg = cv2.cv2.flip(flipimg1, 1)
 
             cv2.imwrite("%s\\ref\\test3.png" % path1, flipimg)
-            img = tk.PhotoImage(file="%s\\ref\\test3.png"%path1)
+            img = tk.PhotoImage(file="%s\\ref\\test3.png" % path1)
 
             T = data1
             logo.config(image=img)
@@ -293,7 +315,7 @@ class PageOne(tk.Frame):
 
         msg = "歡迎進入 Bestyield 出貨紀錄系統"
         # sseGif=tk.PhotoImage(file="C:\\Users\\GOD\\Pictures\\sse.gif")
-        self.sseGif = tk.PhotoImage(file="%s\\ref\\20.png"%path1)
+        self.sseGif = tk.PhotoImage(file="%s\\ref\\20.png" % path1)
         logo = tk.Label(self, image=self.sseGif, text=msg, compound="bottom", font="Helvetic 20 bold",
                         bg="MediumVioletRed")
         logo.grid(row=0, column=0, columnspan=3, rowspan=11)

@@ -79,13 +79,9 @@ class StartPage(tk.Frame):
             print(COM_PORT)
             print(name, password)
 
-            # my_data = {"system": "WebActHp",
-            #            "Username": name,
-            #            "Password": password
-            #            }
             my_data = {"system": "WebActHp",
-                       "Username": 'ActApi',
-                       "Password": 'Act2022'
+                       "Username": name,
+                       "Password": password
                        }
 
             Head = {'Content-Type': 'application/json'}
@@ -170,8 +166,8 @@ class PageOne(tk.Frame):
                     cv2image = cv2.cvtColor(flipimg, cv2.COLOR_BGR2RGBA)
                     img = Image.fromarray(cv2image)
                     imgtk = ImageTk.PhotoImage(image=img)
-                    piclogo.imgtk = imgtk
-                    piclogo.configure(image=imgtk)
+                    logo.imgtk = imgtk
+                    logo.configure(image=imgtk)
 
                 if WebCam == "1":
                     try:
@@ -266,15 +262,13 @@ class PageOne(tk.Frame):
                     ser.close()
                     cv2.waitKey(1000)
                     bluetooth()
+
             except:
-                data1 = '11111'
-                pass
-            # except:
-            #     weightLR.config(text="重量")
-            #     messagebox.showerror("錯誤", "錯誤!  沒有偵測到藍芽接收器")
-            #     # ser.close()
-            #     cv2.waitKey(1000)
-            #     bluetooth()
+                weightLR.config(text="重量")
+                messagebox.showerror("錯誤", "錯誤!  沒有偵測到藍芽接收器")
+                # ser.close()
+                cv2.waitKey(1000)
+                bluetooth()
 
         def printInfo():
             global tr
@@ -439,9 +433,9 @@ class PageOne(tk.Frame):
                         bg="MediumVioletRed")
         logo.grid(row=0, column=0, columnspan=3, rowspan=11)
 
-        piclogo = tk.Label(self, image=self.sseGif, text=msg, compound="bottom", font="Helvetic 20 bold",
-                        bg="MediumVioletRed")
-        piclogo.grid(row=10, column=0, columnspan=3, rowspan=11)
+        # piclogo = tk.Label(self, image=self.sseGif, text=msg, compound="bottom", font="Helvetic 20 bold",
+        #                 bg="MediumVioletRed")
+        # piclogo.grid(row=10, column=0, columnspan=3, rowspan=11)
 
 
         cartL = tk.Label(self, text="Carton ID", font="Helvetic 20 bold", width=8)

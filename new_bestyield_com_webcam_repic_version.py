@@ -88,14 +88,14 @@ class StartPage(tk.Frame):
             print(COM_PORT)
             print(name, password)
 
-            # my_data = {"system": "WebActHp",
-            #            "Username": name,
-            #            "Password": password
-            #            }
             my_data = {"system": "WebActHp",
-                       "Username": 'ActApi',
-                       "Password": 'Act2022'
+                       "Username": name,
+                       "Password": password
                        }
+            # my_data = {"system": "WebActHp",
+            #            "Username": 'ActApi',
+            #            "Password": 'Act2022'
+            #            }
 
             Head = {'Content-Type': 'application/json'}
             x = requests.post('https://byteiotapi.bestyield.com/signin', headers=Head, data=json.dumps(my_data))

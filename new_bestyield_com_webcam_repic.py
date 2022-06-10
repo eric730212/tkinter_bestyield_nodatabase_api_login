@@ -20,6 +20,8 @@ global cap
 global COM_PORT
 global WebCam
 global A
+global c_terminate
+global t_terminate
 
 
 def resource_path(relative_path):
@@ -34,6 +36,8 @@ def resource_path(relative_path):
 WebCam = "10"
 COM_PORT = ""
 A = 0
+c_terminate = 0
+t_terminate = 0
 # cap = cv2.VideoCapture(0)
 tr = ""
 T = ""
@@ -148,7 +152,6 @@ class PageOne(tk.Frame):
             global cap1
             global cap2
 
-
             WebCam = cameraSeclectE.get()
             cap0 = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
             cap1 = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
@@ -210,7 +213,7 @@ class PageOne(tk.Frame):
             A = 1
             ret, frame = cap.read()
 
-            if p != 0:
+            if p != 0 and A != 0:
                 frame = cv2.flip(frame, 1)
                 flipimg1 = cv2.cv2.flip(frame, -1)
                 flipimg = cv2.cv2.flip(flipimg1, 1)
@@ -223,7 +226,13 @@ class PageOne(tk.Frame):
 
         def quit():
             global b
+            global A
+            global t_terminate
+            A = 1
             b = 0
+            t_terminate = 1
+            t.join()
+            c.join()
             self.quit()
 
         def tab():
@@ -234,6 +243,7 @@ class PageOne(tk.Frame):
         def bluetooth():
             global data1
             global COM_PORT
+            global t_terminate
             try:
                 """
                 ports = list(serial.tools.list_ports.comports())
@@ -262,6 +272,8 @@ class PageOne(tk.Frame):
                     ser.close()
                     cv2.waitKey(1000)
                     bluetooth()
+                    if t_terminate == 1:
+                        break
 
             except:
                 weightLR.config(text="重量")
@@ -528,16 +540,27 @@ class PageOne(tk.Frame):
         clearbtn.grid(row=11, column=4)
         repicbtn.grid(row=12, column=3)
 
+        quitbtn.grid_forget()
+        uploadbtn.grid_forget()
+        picbtn.grid_forget()
+        repicbtn.grid_forget()
+        clearbtn.grid_forget()
+
         startbtn = tk.Button(self, text="開始", command=lambda: [camerashow_thread(), cameraSeclectE.grid_forget(),
-                                                               cameraSeclectL.grid_forget(), startbtn.grid_forget()],
+                                                               cameraSeclectL.grid_forget(), startbtn.grid_forget(),
+                                                               quitbtn.grid(row=12, column=2),
+                                                               uploadbtn.grid(row=12, column=1),
+                                                               picbtn.grid(row=12, column=0),
+                                                               clearbtn.grid(row=11, column=4)
+            , repicbtn.grid(row=12, column=3)],
                              cursor="hand2",
                              bg="black", fg="white",
                              font="Helvetic 20 bold")
-        startbtn.grid(row=12, column=6)
+        startbtn.grid(row=12, column=2)
         cameraSeclectL = tk.Label(self, text="Camera Select", font="Helvetic 20 bold", bg='red')
-        cameraSeclectL.grid(row=11,columnspan=2, column=6)
+        cameraSeclectL.grid(row=12, column=0)
         cameraSeclectE = ttk.Combobox(self, values=["0", "1", "2"], state="readonly", font="Helvetic 20 bold")
-        cameraSeclectE.grid(row=12, column=7)
+        cameraSeclectE.grid(row=12, column=1)
         cameraSeclectE.current(0)
         # accountE.insert(0,"GOD")
         # passwordE.insert(0,"pwd")
@@ -550,6 +573,8 @@ class PageOne(tk.Frame):
         c = threading.Thread(target=preCameraShow)
         c.daemon = True
         c.start()
+
+
 
 
         # root.mainloop()

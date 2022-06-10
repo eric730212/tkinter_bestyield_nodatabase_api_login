@@ -152,7 +152,6 @@ class PageOne(tk.Frame):
             global cap1
             global cap2
 
-
             WebCam = cameraSeclectE.get()
             cap0 = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
             cap1 = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
@@ -162,7 +161,7 @@ class PageOne(tk.Frame):
                 WebCam = cameraSeclectE.get()
                 print("webcam:", WebCam)
                 if WebCam == "0":
-                    #cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+                    # cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
                     ret, frame = cap0.read()
                     frame = cv2.flip(frame, 1)
                     flipimg1 = cv2.cv2.flip(frame, -1)
@@ -201,10 +200,8 @@ class PageOne(tk.Frame):
                         # logo.after(10, cameraShow)
                     except:
                         logo.config(image=self.sseGif)
-                if A==1:
+                if A == 1:
                     break
-
-
 
         def cameraShow():
             global cap
@@ -212,18 +209,24 @@ class PageOne(tk.Frame):
             # global WebCam
             # global logo
             A = 1
-            ret, frame = cap.read()
-
-            if p != 0:
-                frame = cv2.flip(frame, 1)
-                flipimg1 = cv2.cv2.flip(frame, -1)
-                flipimg = cv2.cv2.flip(flipimg1, 1)
-                cv2image = cv2.cvtColor(flipimg, cv2.COLOR_BGR2RGBA)
-                img = Image.fromarray(cv2image)
-                imgtk = ImageTk.PhotoImage(image=img)
-                logo.imgtk = imgtk
-                logo.configure(image=imgtk)
-                logo.after(10, cameraShow)
+            if WebCam == "0":
+                ret, frame = cap0.read()
+            if WebCam == "1":
+                ret, frame = cap1.read()
+            if WebCam == "2":
+                ret, frame = cap2.read()
+            while True:
+                if p != 0:
+                    print("cameraShow()")
+                    frame = cv2.flip(frame, 1)
+                    flipimg1 = cv2.cv2.flip(frame, -1)
+                    flipimg = cv2.cv2.flip(flipimg1, 1)
+                    cv2image = cv2.cvtColor(flipimg, cv2.COLOR_BGR2RGBA)
+                    img = Image.fromarray(cv2image)
+                    imgtk = ImageTk.PhotoImage(image=img)
+                    logo.imgtk = imgtk
+                    logo.configure(image=imgtk)
+                    logo.after(10, cameraShow)
 
         def quit():
             global b
@@ -410,7 +413,6 @@ class PageOne(tk.Frame):
             except:
                 pass
 
-
         def camerashow_thread():
             global WebCam
             global cap
@@ -420,15 +422,15 @@ class PageOne(tk.Frame):
             WebCam = cameraSeclectE.get()
             print("webcam:", WebCam)
             if WebCam == "0":
-                #cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+                # cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
                 cap = cap0
             if WebCam == "1":
-                #cap = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
+                # cap = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
                 cap = cap1
             if WebCam == "2":
-                #cap = cv2.VideoCapture(2 + cv2.CAP_DSHOW)
+                # cap = cv2.VideoCapture(2 + cv2.CAP_DSHOW)
                 cap = cap2
-            c = threading.Thread(target=cameraShow)
+            c = threading.Thread(target=cameraShow())
             c.daemon = True
             c.start()
 
@@ -440,9 +442,8 @@ class PageOne(tk.Frame):
         logo.grid(row=0, column=0, columnspan=3, rowspan=11)
 
         piclogo = tk.Label(self, image=self.sseGif, text=msg, compound="bottom", font="Helvetic 20 bold",
-                        bg="MediumVioletRed")
+                           bg="MediumVioletRed")
         piclogo.grid(row=10, column=0, columnspan=3, rowspan=11)
-
 
         cartL = tk.Label(self, text="Carton ID", font="Helvetic 20 bold", width=8)
         snL1 = tk.Label(self, text="S/N (1)", font="Helvetic 20 bold", width=8)
@@ -535,19 +536,23 @@ class PageOne(tk.Frame):
         repicbtn.grid(row=12, column=3)
 
         startbtn = tk.Button(self, text="開始", command=lambda: [camerashow_thread(), cameraSeclectE.grid_forget(),
-                                                               cameraSeclectL.grid_forget(), startbtn.grid_forget()],
+                                                               cameraSeclectL.grid_forget(), startbtn.grid_forget(),
+                                                               quitbtn.grid(row=12, column=2),
+                                                               uploadbtn.grid(row=12, column=1),
+                                                               picbtn.grid(row=12, column=0),
+                                                               clearbtn.grid(row=11, column=4)
+            , repicbtn.grid(row=12, column=3)],
                              cursor="hand2",
                              bg="black", fg="white",
                              font="Helvetic 20 bold")
         startbtn.grid(row=12, column=6)
         cameraSeclectL = tk.Label(self, text="Camera Select", font="Helvetic 20 bold", bg='red')
-        cameraSeclectL.grid(row=11,columnspan=2, column=6)
+        cameraSeclectL.grid(row=11, columnspan=2, column=6)
         cameraSeclectE = ttk.Combobox(self, values=["0", "1", "2"], state="readonly", font="Helvetic 20 bold")
         cameraSeclectE.grid(row=12, column=7)
         cameraSeclectE.current(0)
         # accountE.insert(0,"GOD")
         # passwordE.insert(0,"pwd")
-
 
         t = threading.Thread(target=bluetooth)
         t.daemon = True
@@ -556,7 +561,6 @@ class PageOne(tk.Frame):
         c = threading.Thread(target=preCameraShow)
         c.daemon = True
         c.start()
-
 
         # root.mainloop()
 

@@ -65,7 +65,7 @@ token = ""
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Bestyield-V1.7")
+        self.title("Bestyield-V1.7.1")
         # self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(file=resource_path('ref\\bestyield.png')))
         print("resource_path: ", resource_path('ref\\bestyield.png'))

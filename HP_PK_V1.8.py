@@ -17,17 +17,9 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
+import configparser
 
-global cap
-global COM_PORT
-global WebCam
-global A
-global c_terminate
-global t_terminate
-global stop_precamerashow
-global count
-global name
-global password
+
 
 
 def resource_path(relative_path):
@@ -38,33 +30,15 @@ def resource_path(relative_path):
         base_path = os.path.abspath('.')
     return os.path.join(base_path, relative_path)
 
-name = ""
-password = ""
-WebCam = "10"
-COM_PORT = ""
-A = 0
-c_terminate = 0
-t_terminate = 0
-stop_precamerashow = 0
-count = 0
-cap0 = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-cap1 = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
-cap2 = cv2.VideoCapture(2 + cv2.CAP_DSHOW)
-# cap = cv2.VideoCapture(0)
-tr = ""
-T = ""
-W = "重量"
-b = 1
-p = 1
-path1 = os.path.dirname(os.path.realpath(__file__))
-# path1 = "C:\1\Users\\GOD\\Pictures\\"  # 指定資料夾存放位置
-token = ""
+
+conf = configparser.ConfigParser()
+conf.read('config.ini','utf8')
 
 
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Bestyield-V1.7")
+        self.title("Bestyield-V1.8")
         # self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(file=resource_path('ref\\bestyield.png')))
         print("resource_path: ", resource_path('ref\\bestyield.png'))
@@ -89,17 +63,17 @@ class StartPage(tk.Frame):
             global name
             global password
 
-            name = nameE.get()
-            password = addreddE.get()
-            COM_PORT = "COM" + comE.get()
+            conf['var']['name'] = nameE.get()
+            conf['var']['password'] = addreddE.get()
+            conf['var']['COM_PORT'] = "COM" + comE.get()
 
-            print(WebCam)
-            print(COM_PORT)
-            print(name, password)
+            print(conf['var']['WebCam'])
+            print(conf['var']['COM_PORT'])
+            print(conf['var']['name'], conf['var']['password'])
 
             my_data = {"system": "WebActHp",
-                       "Username": name,
-                       "Password": password
+                       "Username": conf['var']['name'],
+                       "Password": conf['var']['password']
                        }
             # my_data = {"system": "WebActHp",
             #            "Username": 'ActApi',
@@ -109,7 +83,7 @@ class StartPage(tk.Frame):
             Head = {'Content-Type': 'application/json'}
             x = requests.post('https://byteiotapi.bestyield.com/signin', headers=Head, data=json.dumps(my_data))
             print(x.status_code)
-            if x.status_code == 200 and COM_PORT != "":
+            if x.status_code == 200 and conf['var']['COM_PORT'] != "":
                 loginlab.config(text="登入成功", fg="green")
                 token = x.text
                 master.switch_frame(PageOne)
@@ -173,8 +147,8 @@ class PageOne(tk.Frame):
 
             while stop_precamerashow != 1:
                 WebCam = cameraSeclectE.get()
-                # print("webcam:", WebCam)
-                # print('stop_precamerashow:', stop_precamerashow)
+                print("webcam:", WebCam)
+                print('stop_precamerashow:', stop_precamerashow)
                 if WebCam == "0":
                     # cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
                     ret, frame = cap0.read()
@@ -245,8 +219,8 @@ class PageOne(tk.Frame):
                 logo.imgtk = imgtk
                 logo.configure(image=imgtk)
                 logo.after(10, cameraShow)
-                # print('webcom:', WebCam)
-                # print('cameraShow()')
+                print('webcom:', WebCam)
+                print('cameraShow()')
             else:
                 print('else')
                 pass
@@ -318,11 +292,8 @@ class PageOne(tk.Frame):
             # time.sleep(0.5)
 
         def bluetooth():
-            global data1
-            global COM_PORT
-            global t_terminate
-            global ser
-            print('bluetooth()com:', COM_PORT)
+
+            print('bluetooth()com:', conf['var']['COM_PORT'])
             try:
                 """
                 ports = list(serial.tools.list_ports.comports())
@@ -334,13 +305,13 @@ class PageOne(tk.Frame):
                         print("com port:", COM_PORT)
                 """
 
-                while (COM_PORT != ""):
+                while (conf['var']['COM_PORT'] != ""):
                     # COM_PORT = 'COM4'
                     BAUD_RATES = 9600
-                    ser = serial.Serial(COM_PORT, BAUD_RATES, timeout=1)
+                    ser = serial.Serial(conf['var']['COM_PORT'], BAUD_RATES, timeout=1)
                     print("++++++++++")
                     print(ser.readline())
-                    while ser.readline() != b'' and t_terminate != 1:
+                    while ser.readline() != b'' and conf['var']['t_terminate'] != 1:
 
                         data_raw = ser.readline()
                         data = data_raw.decode()
@@ -349,21 +320,21 @@ class PageOne(tk.Frame):
                         # print('接收到的資料：', data)
                         # print('丟到資料庫的:', data1)
                         weightLR.config(text=data1)
-                        # print('bluetooth()')
-                        # print('whileloop1 t_terminate:', t_terminate)
+                        print('bluetooth()')
+                        print('whileloop1 t_terminate:', t_terminate)
                         # ser.close()
                         if t_terminate == 1:
                             print('t_termainal_break')
                             break
 
-                    if t_terminate == 0:
+                    if conf['var']['t_terminate'] == 0:
                         weightLR.config(text="重量")
                         messagebox.showerror("錯誤", "錯誤!  沒有偵測到秤重機COM PORT")
                         # ser.close()
                         cv2.waitKey(1000)
                         print('bluetooth()outside')
                         bluetooth()
-                    if t_terminate == 1:
+                    if conf['var']['t_terminate'] == 1:
                         # ser.close()
                         print('blooth()close')
                         break
@@ -389,14 +360,12 @@ class PageOne(tk.Frame):
             global count
             global name
             global password
-            tr = cartE.get()
+            conf['var']['tr'] = cartE.get()
             totalsnlist = []  # 將有輸入的序號儲存在List
             name_list = [sn1E, sn2E, sn3E, sn4E, sn5E, sn6E, sn7E, sn8E, sn9E, sn10E]
             for i in range(10):
                 if name_list[i].get() != "":
-                    print('name_list[%d].get()'%i,name_list[i].get())
                     totalsnlist.append(name_list[i].get())
-                    print('sn%dE.get'%i,totalsnlist[i])
             seen = set()
             duplicated = set()
             for x in totalsnlist:  # 確認S/N是否有重複或是空的
@@ -405,7 +374,7 @@ class PageOne(tk.Frame):
                 else:
                     duplicated.add(x)
             print(duplicated)
-            if tr == "" or seen == set() or T == "上傳成功" or T == "" or T == "上傳失敗":
+            if conf['var']['tr'] == "" or seen == set() or conf['var']['T'] == "上傳成功" or conf['var']['T'] == "" or conf['var']['T'] == "上傳失敗":
                 print("Empty")
                 messagebox.showerror("錯誤", "錯誤!  沒有輸入 Carton ID , S/N 或是 還沒有拍照")
             else:
@@ -413,7 +382,7 @@ class PageOne(tk.Frame):
                 if duplicated != set():
                     messagebox.showerror("錯誤", "錯誤!  S/N: %s  重複" % duplicated)
                 else:
-                    print(tr)
+                    print(conf['var']['tr'])
                     # if os.path.isdir(path1 +"\\"+ time.strftime('%Y%m%d') + "\\" + tr):  # 如果沒有,新增今天的目錄
                     if os.path.isdir("%s\\%s" % ("C:\\HP_LOG\\PK2", time.strftime('%Y%m%d'))):
                         pass
@@ -442,33 +411,26 @@ class PageOne(tk.Frame):
                     # cv2.imwrite(current_pic_dir + ".png", img)  # 寫到今天/ s/n /的資料夾裡
                     #
                     # my_files = {'file': open("%s.png" % current_pic_dir, 'rb')}
-                    path_time = time.strftime('%Y%m%d%H%M%S')
-                    # print(path_time)
 
-                    cv2.imwrite(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time + ".png", img)  # 寫到今天/ s/n /的資料夾裡
-                    # print(path_time)
-                    my_files = {'file': open(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time+'.png', 'rb')}
-                    # print(path_time)
+                    cv2.imwrite(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ time.strftime('%Y%m%d%H%M%S') + ".png", img)  # 寫到今天/ s/n /的資料夾裡
+
+                    my_files = {'file': open(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ time.strftime('%Y%m%d%H%M%S')+'.png', 'rb')}
+
                     img = tk.PhotoImage(file=resource_path("ref\\test3.png"))
                     logo.config(image=img)
                     print("S/N: %s" % (cartE.get()))
 
                     my_data1 = {"snList": totalsnlist}
-                    # my_data1 = {'snList':'NYYYYYYYYYYY'}
 
 
                     y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]),  # 上傳
                                       headers={'Authorization': 'Bearer ' + token},
                                       files=my_files, data=my_data1)
+                    print(y.status_code)
+                    print(y.text)
 
-                    print('y.status_code:',y.status_code)
-                    print('y.text:',y.text)
-                    print('totalsnlist:',type(totalsnlist))
-                    print('my_data1:',my_data1)
-                    print('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]))
-                    print('sn1E.get():',sn1E.get())
 
-                    if y.status_code == 401 :
+                    if y.status_code == 401:
 
                         print(name, password)
 
@@ -636,7 +598,7 @@ class PageOne(tk.Frame):
         snL10.grid(row=10, column=4)
         weightL.grid(row=11, column=0)
 
-        weightLR = tk.Label(self, text=W, font="Helvetic 40 bold", height=2)
+        weightLR = tk.Label(self, text=conf['var']['W'], font="Helvetic 40 bold", height=2)
         weightLR.grid(row=11, column=5, rowspan=2, sticky="N")
 
         cartE = tk.Entry(self, font="Helvetic 20 bold", width=23, justify="center")
@@ -651,7 +613,7 @@ class PageOne(tk.Frame):
         sn8E = tk.Entry(self, font="Helvetic 20 bold", width=23, justify="center")
         sn9E = tk.Entry(self, font="Helvetic 20 bold", width=23, justify="center")
         sn10E = tk.Entry(self, font="Helvetic 20 bold", width=23, justify="center")
-        weightLL = tk.Label(self, text=T, width=20, font="Helvetic 20 bold")
+        weightLL = tk.Label(self, text=conf['var']['T'], width=20, font="Helvetic 20 bold")
         cartE.grid(row=0, column=5)
 
         cartE.bind("<Return>", (lambda event: tab()))

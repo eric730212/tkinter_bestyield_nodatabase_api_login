@@ -18,6 +18,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
 
+
 global cap
 global COM_PORT
 global WebCam
@@ -102,8 +103,8 @@ class StartPage(tk.Frame):
                        "Password": password
                        }
             # my_data = {"system": "WebActHp",
-            #            "Username": 'ActApi',
-            #            "Password": 'Act2022'
+            #            "Username": 'TST410',
+            #            "Password": '0410'
             #            }
 
             Head = {'Content-Type': 'application/json'}
@@ -141,7 +142,7 @@ class StartPage(tk.Frame):
         nameE.grid(row=1, column=1)
         addreddE.grid(row=2, column=1, pady=10)
         comE.grid(row=3, column=1)
-        comE.current(3)
+        comE.current(4)
         # cameraSecectE = tk.Entry(self)
         # cameraSeclectE = ttk.Combobox(self, values=['0', '1', '2'], state="readonly")
         # cameraSeclectE.grid(row=4, column=1, pady=10)
@@ -419,7 +420,7 @@ class PageOne(tk.Frame):
                         pass
                     else:
                         os.makedirs("%s\\%s" % ("C:\\HP_LOG\\PK2", time.strftime('%Y%m%d')))
-                    global path
+                    # global path
                     # path = path1 +"\\"+ time.strftime('%Y%m%d') + "\\"  # 定義成今天的資料夾
                     path = "%s\\%s" % ("C:\\HP_LOG\\PK2", time.strftime('%Y%m%d'))
                     global person_list
@@ -443,18 +444,19 @@ class PageOne(tk.Frame):
                     #
                     # my_files = {'file': open("%s.png" % current_pic_dir, 'rb')}
                     path_time = time.strftime('%Y%m%d%H%M%S')
-                    # print(path_time)
+
 
                     cv2.imwrite(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time + ".png", img)  # 寫到今天/ s/n /的資料夾裡
-                    # print(path_time)
-                    my_files = {'file': open(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time+'.png', 'rb')}
-                    # print(path_time)
+
+                    # my_files = {'file': open(path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time+'.png', 'rb')}
+                    my_files = {'file': open('ref\\test3.png', 'rb')}
                     img = tk.PhotoImage(file=resource_path("ref\\test3.png"))
                     logo.config(image=img)
                     print("S/N: %s" % (cartE.get()))
+                    print('my_files_path:',path + "\\" + tr +'_'+sn1E.get()+"_PK_"+ path_time+'.png')
 
                     my_data1 = {"snList": totalsnlist}
-                    # my_data1 = {'snList':'NYYYYYYYYYYY'}
+
 
 
                     y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]),  # 上傳
@@ -463,10 +465,7 @@ class PageOne(tk.Frame):
 
                     print('y.status_code:',y.status_code)
                     print('y.text:',y.text)
-                    print('totalsnlist:',type(totalsnlist))
-                    print('my_data1:',my_data1)
-                    print('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]))
-                    print('sn1E.get():',sn1E.get())
+
 
                     if y.status_code == 401 :
 

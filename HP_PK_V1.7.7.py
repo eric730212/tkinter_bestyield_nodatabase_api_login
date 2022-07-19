@@ -65,7 +65,7 @@ token = ""
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Bestyield-V1.7.6")
+        self.title("Bestyield-V1.7.7")
         # self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(file=resource_path('ref\\bestyield.png')))
         print("resource_path: ", resource_path('ref\\bestyield.png'))
@@ -347,7 +347,7 @@ class PageOne(tk.Frame):
 
                         data_raw = ser.readline()
                         data = data_raw.decode()
-                        data1 = data[6:14]
+                        data1 = data[6:14].replace(" ","")
 
                         # print('接收到的資料：', data)
                         # print('丟到資料庫的:', data1)
@@ -470,12 +470,13 @@ class PageOne(tk.Frame):
 
                     my_data1 = {"snList": totalsnlist}
 
-                    y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T[1:7]),  # 上傳
+                    y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T.replace(" ","")[:-1]),  # 上傳
                                       headers={'Authorization': 'Bearer ' + token},
                                       files=my_files, data=my_data1)
 
                     print('y.status_code:', y.status_code)
                     print('y.text:', y.text)
+                    print('T:',T.replace(" ","")[:-1])
 
                     if y.status_code == 401:
 
@@ -585,9 +586,9 @@ class PageOne(tk.Frame):
                     cv2.putText(flipimg, data1[:-1].replace(" ","")+"(g)", (10, 30 + (i + 2) * 30), cv2.FONT_HERSHEY_PLAIN,
                                 2, (205, 0, 0), 2, cv2.LINE_AA)
             # time
-            time_text = time.strftime("%Y-%m-%d %I:%M:%S %p")
-            cv2.putText(flipimg, time_text, (200, 450), cv2.FONT_HERSHEY_COMPLEX,
-                        1, (0, 215, 255), 1, cv2.LINE_AA)
+            # time_text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # cv2.putText(flipimg, time_text, (200, 450), cv2.FONT_HERSHEY_COMPLEX,
+            #             1, (0, 215, 255), 1, cv2.LINE_AA)
 
             cv2.imwrite(resource_path("ref\\test3.png"), flipimg)
             img = tk.PhotoImage(file=resource_path("ref\\test3.png"))

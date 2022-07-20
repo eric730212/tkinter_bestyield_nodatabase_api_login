@@ -26,6 +26,8 @@ global c_terminate
 global t_terminate
 global stop_precamerashow
 global count
+global auto_count
+global auto_count_arr
 global name
 global password
 
@@ -48,6 +50,8 @@ c_terminate = 0
 t_terminate = 0
 stop_precamerashow = 0
 count = 0
+auto_count = 0
+auto_count_arr = []
 cap0 = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
 cap1 = cv2.VideoCapture(1 + cv2.CAP_DSHOW)
 cap2 = cv2.VideoCapture(2 + cv2.CAP_DSHOW)
@@ -65,7 +69,7 @@ token = ""
 class SampleApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Bestyield-V1.7.8")
+        self.title("Bestyield-V1.7.9")
         # self.iconbitmap('%s\\ref\\bestyield1.ico'%path1)
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(file=resource_path('ref\\bestyield.png')))
         print("resource_path: ", resource_path('ref\\bestyield.png'))
@@ -347,7 +351,7 @@ class PageOne(tk.Frame):
 
                         data_raw = ser.readline()
                         data = data_raw.decode()
-                        data1 = data[6:14].replace(" ","")
+                        data1 = data[6:14].replace(" ", "")
 
                         # print('接收到的資料：', data)
                         # print('丟到資料庫的:', data1)
@@ -470,13 +474,14 @@ class PageOne(tk.Frame):
 
                     my_data1 = {"snList": totalsnlist}
 
-                    y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T.replace(" ","")[:-1]),  # 上傳
-                                      headers={'Authorization': 'Bearer ' + token},
-                                      files=my_files, data=my_data1)
+                    y = requests.post(
+                        'https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T.replace(" ", "")[:-1]),  # 上傳
+                        headers={'Authorization': 'Bearer ' + token},
+                        files=my_files, data=my_data1)
 
                     print('y.status_code:', y.status_code)
                     print('y.text:', y.text)
-                    print('T:',T.replace(" ","")[:-1])
+                    print('T:', T.replace(" ", "")[:-1])
 
                     if y.status_code == 401:
 
@@ -497,9 +502,11 @@ class PageOne(tk.Frame):
                         print(x.status_code)
                         if x.status_code == 200 and COM_PORT != "":
                             token = x.text
-                            y = requests.post('https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T.replace(" ","")[:-1]),  # 上傳
-                                              headers={'Authorization': 'Bearer ' + token},
-                                              files=my_files, data=my_data1)
+                            y = requests.post(
+                                'https://byteiotapi.bestyield.com/api/Act18/%s/%s' % (tr, T.replace(" ", "")[:-1]),
+                                # 上傳
+                                headers={'Authorization': 'Bearer ' + token},
+                                files=my_files, data=my_data1)
                             print("重新登入", y.status_code)
                             print("重新登入", y.text)
 
@@ -546,69 +553,74 @@ class PageOne(tk.Frame):
             global T
             global p
             global data1
+            if cartE.get() != "" and sn1E.get() != "":
+                ret, frame = cap.read()
+                frame = cv2.flip(frame, 1)
+                flipimg1 = cv2.flip(frame, -1)
+                flipimg = cv2.flip(flipimg1, 1)
 
-            ret, frame = cap.read()
-            frame = cv2.flip(frame, 1)
-            flipimg1 = cv2.flip(frame, -1)
-            flipimg = cv2.flip(flipimg1, 1)
-
-            # add text function
-            cv2.putText(flipimg, cartE.get(), (10, 30), cv2.FONT_HERSHEY_PLAIN,
-                        2, (205, 0, 0), 2, cv2.LINE_AA)
-            str_entry = []
-            if sn1E.get() != "":
-                str_entry.append(sn1E.get())
-            if sn2E.get() != "":
-                str_entry.append(sn2E.get())
-            if sn3E.get() != "":
-                str_entry.append(sn3E.get())
-            if sn4E.get() != "":
-                str_entry.append(sn4E.get())
-            if sn5E.get() != "":
-                str_entry.append(sn5E.get())
-            if sn6E.get() != "":
-                str_entry.append(sn6E.get())
-            if sn7E.get() != "":
-                str_entry.append(sn7E.get())
-            if sn8E.get() != "":
-                str_entry.append(sn8E.get())
-            if sn9E.get() != "":
-                str_entry.append(sn9E.get())
-            if sn10E.get() != "":
-                str_entry.append(sn10E.get())
-
-            print("str_entry:", str_entry)
-            for i in range(len(str_entry)):
-                cv2.putText(flipimg, str_entry[i], (10, 30 + (i + 1) * 30), cv2.FONT_HERSHEY_PLAIN,
+                # add text function
+                cv2.putText(flipimg, cartE.get(), (10, 30), cv2.FONT_HERSHEY_PLAIN,
                             2, (205, 0, 0), 2, cv2.LINE_AA)
-                if i == len(str_entry) - 1:
+                str_entry = []
+                if sn1E.get() != "":
+                    str_entry.append(sn1E.get())
+                if sn2E.get() != "":
+                    str_entry.append(sn2E.get())
+                if sn3E.get() != "":
+                    str_entry.append(sn3E.get())
+                if sn4E.get() != "":
+                    str_entry.append(sn4E.get())
+                if sn5E.get() != "":
+                    str_entry.append(sn5E.get())
+                if sn6E.get() != "":
+                    str_entry.append(sn6E.get())
+                if sn7E.get() != "":
+                    str_entry.append(sn7E.get())
+                if sn8E.get() != "":
+                    str_entry.append(sn8E.get())
+                if sn9E.get() != "":
+                    str_entry.append(sn9E.get())
+                if sn10E.get() != "":
+                    str_entry.append(sn10E.get())
 
-                    cv2.putText(flipimg, data1[:-1].replace(" ","")+"(g)", (10, 30 + (i + 2) * 30), cv2.FONT_HERSHEY_PLAIN,
+                print("str_entry:", str_entry)
+                for i in range(len(str_entry)):
+                    cv2.putText(flipimg, str_entry[i], (10, 30 + (i + 1) * 30), cv2.FONT_HERSHEY_PLAIN,
                                 2, (205, 0, 0), 2, cv2.LINE_AA)
-            # time
-            # time_text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            # cv2.putText(flipimg, time_text, (200, 450), cv2.FONT_HERSHEY_COMPLEX,
-            #             1, (0, 215, 255), 1, cv2.LINE_AA)
+                    if i == len(str_entry) - 1:
+                        cv2.putText(flipimg, data1[:-1].replace(" ", "") + "(g)", (10, 30 + (i + 2) * 30),
+                                    cv2.FONT_HERSHEY_PLAIN,
+                                    2, (205, 0, 0), 2, cv2.LINE_AA)
+                # time
+                # time_text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # cv2.putText(flipimg, time_text, (200, 450), cv2.FONT_HERSHEY_COMPLEX,
+                #             1, (0, 215, 255), 1, cv2.LINE_AA)
 
-            cv2.imwrite(resource_path("ref\\test3.png"), flipimg)
-            img = tk.PhotoImage(file=resource_path("ref\\test3.png"))
+                cv2.imwrite(resource_path("ref\\test3.png"), flipimg)
+                img = tk.PhotoImage(file=resource_path("ref\\test3.png"))
 
-            T = data1
-            logo.config(image=img)
-            weightLL.config(text=T, fg="black", font="Helvetic 20 bold")
-            p = 0
+                T = data1
+                logo.config(image=img)
+                weightLL.config(text=T, fg="black", font="Helvetic 20 bold")
+                p = 0
+            else:
+                messagebox.showerror("錯誤","錯誤! 尚未輸入 Carton ID , SN !")
 
         def repic():
             global p
             global A
+            global T
             try:
                 if p == 1:
                     weightLL.config(text="", fg="black", font="Helvetic 20 bold")
+                    T = ""
                     print('repic camerashow')
                     # cameraShow()
                 else:
                     p = 1
                     weightLL.config(text="", fg="black", font="Helvetic 20 bold")
+                    T = ""
                     print('repic camerashow')
                     cameraShow()
             except:
@@ -643,6 +655,58 @@ class PageOne(tk.Frame):
             # c = threading.Thread(target=cameraShow)
             # c.daemon = True
             # c.start()
+
+        def auto_takepic():
+            global auto_count
+            global data1
+            global auto_count_arr
+            global T
+            global ser
+            global cap
+            global stop_precamerashow
+            time.sleep(3)
+            while ser.isOpen():
+                while stop_precamerashow == 1:
+                    while cartE.get()!="":
+                        time.sleep(0.1)
+                        if len(auto_count_arr) <= 10:
+                            auto_count_arr.append(data1)
+                            print("auto_count_arr<10:",auto_count_arr)
+                        else:
+                            auto_count_arr.pop(0)
+                            auto_count_arr.append(data1)
+                            print("auto_count_arr:", auto_count_arr)
+
+                            for i in range(10):
+                                if auto_count_arr[0] == auto_count_arr[i]:
+                                    auto_count += 1
+                                else:
+                                    auto_count = 0
+
+                            print("auto_count:", auto_count)
+
+                            if auto_count == 10:
+                                if auto_count_arr[0] == "0g" and T == "上傳成功":
+                                    print("data1:", data1)
+                                    time.sleep(3)
+                                    weightLL.config(text="")
+
+                                    auto_count = 0
+                                    auto_count_arr = []
+                                elif auto_count_arr[0] != "0g"  and cartE.get() != "" and sn1E.get() != "":
+                                    repic()
+                                    takepic()
+                                    auto_count = 0
+                                    auto_count_arr = []
+                                    T = data1
+                                auto_count = 0
+                                auto_count_arr = []
+                                print("T:",T)
+                    # print("cartE="" T=:",T)
+                    if T == "上傳成功":
+                        if data1 == "0g":
+                            T = ""
+                            weightLL.config(text=T)
 
         msg = "歡迎進入 Bestyield 出貨紀錄系統"
         # sseGif=tk.PhotoImage(file="C:\\Users\\GOD\\Pictures\\sse.gif")
@@ -777,6 +841,10 @@ class PageOne(tk.Frame):
         c = threading.Thread(target=preCameraShow)
         c.daemon = True
         c.start()
+
+        auto = threading.Thread(target=auto_takepic)
+        auto.daemon = True
+        auto.start()
 
         # root.mainloop()
         app.protocol('WM_DELETE_WINDOW', quit)
